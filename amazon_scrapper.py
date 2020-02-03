@@ -1,8 +1,8 @@
 import bs4
 from urllib.request import urlopen as urlReq
 from bs4 import BeautifulSoup as soup 
-import csv
-searchString = "s10"
+import csvWriter
+searchString = "moto"
 blockWords = ["None", 'screen', 'Protector', 'case', 'film']
 searchPageDepth = 4
 currentPage = 0
@@ -15,7 +15,7 @@ results=[]
 while currentPage < searchPageDepth : 
     if currentPage != 0 :
         if currentPage <= searchPageDepth : 
-            urlSite = 'amazon.com' + str(page_soup.find('li', {'class':'a-last'}).a['href']) + '/'
+            urlSite = 'https://www.amazon.com' + str(page_soup.find('li', {'class':'a-last'}).a['href']) + '/'
             webSite = urlReq(urlSite)
             html = webSite.read()
             webSite.close()
@@ -29,19 +29,20 @@ while currentPage < searchPageDepth :
                 blockedItem = True
         if blockedItem == False:
             name=text.strip('<span class="a-size-medium a-color-base a-text-normal" dir="auto">').strip('</')
-            price = str(item.find('span',{'class':'a-price-whole'})).strip('<span class="a-price-whole">').strip('<span class="a-price-decimal">.</span></')
+            if (item.find('free') or item.find('FREE')):
+                price = fullPrice = '0'
+            else:
+                price = str(item.find('span',{'class':'a-price-whole'})).strip('<span class="a-price-whole">').strip('<span class="a-price-decimal">.</span></ $').replace(' ','')
+                fullPrice = str(item.find('span',{'class':'a-offscreen'})).strip('<span class="a-offscreen"></span> $ N').replace(' ','')
+            if float(fullPrice) - float(price) > 1:
+                discount = str(100-(float(price)*100/float(fullPrice))) + '%'
+            else:
+                discount = 'N/A'
             itemNumber = str(len(results))
-            #link = 'amazon.com' + str(item.find('a', {'class':'a-size-base a-link-normal s-no-hover a-text-normal'})).strip('<a class="a-size-base a-link-normal s-no-hover a-text-normal" href="').strip(">")
             link = 'amazon.com' + item.find('div',{'class':'a-row a-size-base a-color-base'}).a['href'] + '/'
-            results.append((itemNumber, price, name, link,))
-            print("item #"+ itemNumber +": "+ name +" $"+ str(price))
+            results.append((itemNumber, price, name, link, discount))
+            print("item #"+ itemNumber +": "+ name +" $"+ str(price) + 'off' + discount)
     currentPage=currentPage+1
-    with open(searchString+".cvs", mode='w') as csv_file:
-        fieldnames=['item #','price','title', 'link']
-        writer = csv.DictWriter(csv_file,fieldnames=fieldnames)
-        writer.writeheader()
-        for result in results:
-            #writer.writerow(result[int(itemNumber)])
-            writer.writerow({'item #':result[0],'price':result[1],'title':result[2], 'link' : result[3]})
+csvWriter.writeOut(results, searchString)
                 
     
