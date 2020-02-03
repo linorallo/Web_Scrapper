@@ -2,8 +2,9 @@ import bs4
 from urllib.request import urlopen as urlReq
 from bs4 import BeautifulSoup as soup 
 import csv
+import csvWriter
 searchString = "samsung"
-blockWords = ["None", 'screen', 'Protector', 'case', 'film']
+blockWords = ["None", 'screen', 'pc', 'case', 'film']
 searchPageDepth = 2
 currentPage = 0
 urlSite = "https://listado.mercadolibre.com.ar/" + searchString +'/'
@@ -38,14 +39,6 @@ while currentPage < searchPageDepth :
             itemNumber = str(len(results))
             link = item.a['href']
             results.append((itemNumber, price, name, link, discount,))
-            print("item #"+ itemNumber +": "+ name +" $"+ str(price))
+            print("item #"+ itemNumber +": "+ name +" $"+ str(price) )
     currentPage=currentPage+1
-    with open(searchString+".cvs", mode='w') as csv_file:
-        fieldnames=['item #','price','title', 'link']
-        writer = csv.DictWriter(csv_file,fieldnames=fieldnames)
-        writer.writeheader()
-        for result in results:
-            #writer.writerow(result[int(itemNumber)])
-            writer.writerow({'item #':result[0],'price':result[1],'title':result[2], 'link' : result[3]})
-                
     
