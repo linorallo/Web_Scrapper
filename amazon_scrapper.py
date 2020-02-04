@@ -1,8 +1,8 @@
 import bs4
 from urllib.request import urlopen as urlReq
 from bs4 import BeautifulSoup as soup 
-import csv
-searchString = "s10"
+import csvWriter
+searchString = "moto"
 blockWords = ["None", 'screen', 'Protector', 'case', 'film']
 searchPageDepth = 4
 currentPage = 0
@@ -24,16 +24,26 @@ while currentPage < searchPageDepth :
     for item in itemsWhole:
         text = str(item.find('span',{'class':'a-size-medium a-color-base a-text-normal'}))
         for blockedWord in blockWords:
-            if blockedWord not in text:
-                #if searchString in text :
-                    name=text.strip('<span class="a-size-medium a-color-base a-text-normal" dir="auto">').strip('</')
-                    price = str(item.find('span',{'class':'a-price-whole'})).strip('<span class="a-price-whole">').strip('<span class="a-price-decimal">.</span></')
-                    itemNumber = str(len(results)+1)
-                    #link = 'amazon.com' + str(item.find('a', {'class':'a-size-base a-link-normal s-no-hover a-text-normal'})).strip('<a class="a-size-base a-link-normal s-no-hover a-text-normal" href="').strip(">")
-                    link = 'amazon.com' + item.find('div',{'class':'a-row a-size-base a-color-base'}).a['href'] + '/'
-                    results.append((itemNumber, int(price), name, link,))
-                    print("item #"+ itemNumber +": "+ name +" $"+ str(price))
+            if blockedWord in text:
+                blockedItem = True
+        if blockedItem == False:
+            name=text.strip('<span class="a-size-medium a-color-base a-text-normal" dir="auto">').strip('</')
+            if (item.find('free') or item.find('FREE')):
+                price = fullPrice = '0'
+            else:
+                price = str(item.find('span',{'class':'a-price-whole'})).strip('<span class="a-price-whole">').strip('<span class="a-price-decimal">.</span></ $').replace(' ','')
+                fullPrice = str(item.find('span',{'class':'a-offscreen'})).strip('<span class="a-offscreen"></span> $ N').replace(' ','')
+            if float(fullPrice) - float(price) > 1:
+                discount = str(100-(float(price)*100/float(fullPrice))) + '%'
+            else:
+                discount = 'N/A'
+            itemNumber = str(len(results))
+            link = 'amazon.com' + item.find('div',{'class':'a-row a-size-base a-color-base'}).a['href'] + '/'
+            results.append((itemNumber, price, name, link, discount))
+            print("item #"+ itemNumber +": "+ name +" $"+ str(price) + 'off' + discount)
     currentPage=currentPage+1
+csvWriter.writeOut(results, searchString)
+                
 minResultPrice = 100000000000000000
 minResultItemNum = ''
 with open(searchString+".cvs", mode='w') as csv_file:
