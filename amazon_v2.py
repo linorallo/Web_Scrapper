@@ -2,7 +2,7 @@ import bs4
 import sortResults
 from urllib.request import urlopen as urlReq
 from bs4 import BeautifulSoup as soup 
-def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference):
+def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference, currency):
     searchString = searchString.replace(' ','+')
     currentPage = 0
     urlSite = "https://www.amazon.com/s?k=" + searchString + "&ref=nb_sb_noss_2"
@@ -24,12 +24,12 @@ def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference):
             def itemAnalysis():
                 if 'App' and 'Prime Video' not in str(item):
                     text = str(item.find('span',{'class':'a-size-medium a-color-base a-text-normal'}))
-                    print('--------------------------------')
+                    #print('--------------------------------')
                     name=text.strip('<span class="a-size-medium a-color-base a-text-normal" dir="auto">').strip('</')
                     if (item.find('free') or item.find('FREE')):
                         price = fullPrice = '0'
                     else:
-                        print(name)
+                        #print(name)
                         price = str(item.find('span',{'class':'a-price-whole'}))[28:37].strip('<span class')
                         fullPrice = str(item.find('span',{'class':'a-offscreen'}))[27:36].strip('</span ')
                         try:
@@ -42,10 +42,7 @@ def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference):
                     itemNumber = str(len(results))
                     link = 'https://amazon.com' + item.find('div',{'class':'a-row a-size-base a-color-base'}).a['href'] + '/'
                     results.append((itemNumber, price, name, link, discount))
-                    if discount == 'N/A':
-                        print("item #"+ itemNumber +": "+ name +" $"+ str(price))
-                    else :
-                        print("item #"+ itemNumber +": "+ name +" $"+ str(price) + ' OFF ' + discount +' !')
+                    #print("item #"+ itemNumber +": "+ name +" $"+ str(price) + ' OFF ' + discount +' !')
             bWordFound = 0
             for bWord in blockedWord:
                 if bWord in str(item):  

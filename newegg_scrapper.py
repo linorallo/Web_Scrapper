@@ -2,7 +2,7 @@ import bs4
 import sortResults
 from urllib.request import urlopen as urlReq
 from bs4 import BeautifulSoup as soup 
-def searchInNewegg(searchString, blockedWord, searchPageDepth, sortPreference):
+def searchInNewegg(searchString, blockedWord, searchPageDepth, sortPreference, currency):
     searchString = searchString.replace(' ','+')
     results=[]
     currentPage = 1
@@ -18,7 +18,7 @@ def searchInNewegg(searchString, blockedWord, searchPageDepth, sortPreference):
         itemsWhole = itemsWholeGrid.findAll('div',{'class':'item-container'})
         for item in itemsWhole:
             def itemAnalysis():
-                print('--------------------------------')
+                #print('--------------------------------')
                 text = item.find('div',{'class':'item-info'})
                 name=str(text.find('a',{'class':'item-title'}).text)
                 price = str(text.find('li',{'class':'price-current'}))[78:85].strip('</strong>').replace(',','')
@@ -28,7 +28,7 @@ def searchInNewegg(searchString, blockedWord, searchPageDepth, sortPreference):
                 if len(discount) <2 :
                     discount = '0%'
                 results.append((itemNumber, price, name, link, discount))
-                print("item #"+ itemNumber +": "+ name +" $"+ str(price) + " OFF " + discount)  
+                #print("item #"+ itemNumber +": "+ name +" $"+ str(price) + " OFF " + discount)  
             bWordFound=0
             for bWord in blockedWord:
                     if bWord in str(item):
