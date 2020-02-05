@@ -1,11 +1,9 @@
 import bs4
+import sortResults
 from urllib.request import urlopen as urlReq
 from bs4 import BeautifulSoup as soup 
-def searchInAmazon(searchString, blockedWord, strictFilter, searchPageDepth):
-    if len(blockedWord) > 0:
-        blockedWordFilter = True
-    else :
-        blockedWordFilter = False
+def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference):
+    searchString = searchString.replace(' ','+')
     currentPage = 0
     urlSite = "https://www.amazon.com/s?k=" + searchString + "&ref=nb_sb_noss_2"
     webSite = urlReq(urlSite)
@@ -25,8 +23,8 @@ def searchInAmazon(searchString, blockedWord, strictFilter, searchPageDepth):
         for item in itemsWhole:
             def itemAnalysis():
                 if 'App' and 'Prime Video' not in str(item):
-                    print('Enters itemAnalysis()')
                     text = str(item.find('span',{'class':'a-size-medium a-color-base a-text-normal'}))
+                    print('--------------------------------')
                     name=text.strip('<span class="a-size-medium a-color-base a-text-normal" dir="auto">').strip('</')
                     if (item.find('free') or item.find('FREE')):
                         price = fullPrice = '0'
@@ -34,8 +32,6 @@ def searchInAmazon(searchString, blockedWord, strictFilter, searchPageDepth):
                         print(name)
                         price = str(item.find('span',{'class':'a-price-whole'}))[28:37].strip('<span class')
                         fullPrice = str(item.find('span',{'class':'a-offscreen'}))[27:36].strip('</span ')
-                        print('price='+price)
-                        print('fullPrice='+fullPrice)
                         try:
                             if float(fullPrice) - float(price) > 1:
                                 discount = str(100-(float(price)*100/float(fullPrice))) + '%'
@@ -44,26 +40,20 @@ def searchInAmazon(searchString, blockedWord, strictFilter, searchPageDepth):
                         except ValueError:
                             discount = 'N/A'     
                     itemNumber = str(len(results))
-                    link = 'amazon.com' + item.find('div',{'class':'a-row a-size-base a-color-base'}).a['href'] + '/'
+                    link = 'https://amazon.com' + item.find('div',{'class':'a-row a-size-base a-color-base'}).a['href'] + '/'
                     results.append((itemNumber, price, name, link, discount))
                     if discount == 'N/A':
                         print("item #"+ itemNumber +": "+ name +" $"+ str(price))
                     else :
-                        print("item #"+ itemNumber +": "+ name +" $"+ str(price) + ' OFF' + discount +' !')
-            if blockedWordFilter == True :
-                for bWord in blockedWord:
-                    if bWord not in str(item):  
-                        if strictFilter == True :
-                            if searchString in str(item) :
-                                itemAnalysis()    
-                        else:
-                            itemAnalysis()        
-            else :
-                if strictFilter == True :
-                    if searchString  in str(item) :
-                        itemAnalysis()    
-                else:
-                    itemAnalysis() 
+                        print("item #"+ itemNumber +": "+ name +" $"+ str(price) + ' OFF ' + discount +' !')
+            bWordFound = 0
+            for bWord in blockedWord:
+                if bWord in str(item):  
+                    bWordFound+=1
+            if bWordFound == 0 :
+                itemAnalysis()
         currentPage=currentPage+1
-    ##Falta reordenar la lista
-    return results
+    if sortPreference == 'Increasing' :
+        return sortResults.sortIncreasing(results)
+    if sortPreference == 'Decreasing' :
+        return sortResults.sortDecreasing(results)
