@@ -6,3 +6,4 @@ To be implemented:
     -Sorting results by preference
     -Add Web interface
     -Cathegorize search in order to sort out possible webstores
+    -Implement thread piping
