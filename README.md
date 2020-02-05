@@ -7,3 +7,4 @@ To be implemented:
     -Add Web interface
     -Cathegorize search in order to sort out possible webstores
     -Implement thread piping
+    -Implement search with quality filter 
