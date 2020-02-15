@@ -32,18 +32,22 @@ def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference, c
                         price = fullPrice = '0'
                     else:
                         try:
-                            price = str(item.find('span',{'class':'a-price-whole'}).text).strip('.').replace(',','')
-                            #price = str(item.find('span',{'class':'a-price-whole'}))[28:37].strip('<span class')
-                            fullPrice = str(item.find('span',{'class':'a-offscreen'}))[27:36].strip('</span ')
+                            price = str(item.find('span',{'class':'a-price-whole'}).text).replace(',','').strip('.')
+                            fullPriceSpan = item.find('span',{'data-a-strike':'true'})
                             try:
-                                if float(fullPrice) - float(price) > 1:
-                                    discount = str(100-(float(price)*100/float(fullPrice))) + '%'
+                                fullPrice = str(fullPriceSpan.find('span',{'class':'a-offscreen'}).text).strip('$').partition('.')[0]
+                            except:
+                                fullPrice = price
+                            try:
+                                if fullPrice != price:
+                                    discount = str(100 - round(float(price),2)*100/round(float(fullPrice),2)).partition('.')[0] 
+                                    print(discount)
                                 else:
                                     discount = '0'  
                             except ValueError as err:
                                 discount = '0'     
                             itemNumber = str(len(results))
-                            link = ('https://amazon.com' + item.find('a',{'class':'a-link-normal a-text-normal'})['href']).partition('ref')[0]
+                            link = ('amazon.com' + item.find('a',{'class':'a-link-normal a-text-normal'})['href']).partition('ref')[0]
                             results.append((itemNumber, price, name, link, discount, str(datetime), amazonDBPK))
                         except AttributeError as err:
                             print('Item Skipped due to: ' +str(err))
