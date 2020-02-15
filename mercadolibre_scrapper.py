@@ -2,9 +2,12 @@ import bs4
 from urllib.request import urlopen as urlReq
 from bs4 import BeautifulSoup as soup 
 import sortResults
+import datetime as date
+mercadolibreDBPK = 2
 def searchInMercadoLibre(searchString, blockedWord, searchPageDepth, sortPreference, currency):
     searchString = searchString.replace(' ','+')
     currentPage = 0
+    datetime = date.datetime.now()
     if currency == 'USD' :
         urlSite = 'http://www.dolarhoy.com/'
         webSite = urlReq(urlSite)
@@ -13,6 +16,7 @@ def searchInMercadoLibre(searchString, blockedWord, searchPageDepth, sortPrefere
         page_soup = soup(html, 'html.parser')
         usdContainer = page_soup.find('div',{'class':'pill pill-coti'})
         usdCompra = str(usdContainer.findAll('span')[1:2])[23:30].strip('</').replace(',','.')
+        print('USD Compra= '+str(usdCompra))
     urlSite = "https://listado.mercadolibre.com.ar/" + searchString +'/'
     webSite = urlReq(urlSite)
     html = webSite.read()
@@ -28,24 +32,32 @@ def searchInMercadoLibre(searchString, blockedWord, searchPageDepth, sortPrefere
                 webSite.close()
                 page_soup = soup(html, 'html.parser')
         itemsWhole = page_soup.findAll('li',{'class':'results-item highlighted article stack product'})
-        print(len(itemsWhole))
         for item in itemsWhole:
             def itemAnalysis():
                 #print('--------------------------------')
                 text = str(item.find('span', {'class':'main-title'}))
                 name=text.strip('<span class="main-title"> ').strip('</span>')
-                price = str(item.find('span',{'class':'price__fraction'}))[29:36].strip('</span>').replace('.','')
-                if len(price)<1 :
-                    price = str(item.find('div',{'class':'pdp_options__text pdp_options--no-margin'}))[63:70].strip('.').strip('<')
+                #price = str(item.find('span',{'class':'price__fraction'}))[29:36].strip('</span>').replace('.','').replace(',','')
+                try:
+                    price = str(item.find('span',{'class':'price__fraction'}).text).replace('.','')
+                except AttributeError as err:
+                    price = str(item.find('div',{'class':'pdp_options__text pdp_options--no-margin'}).text.strip(' $ ').partition(' ')[0]).replace('.','')
                 if currency == 'USD' :
-                    #print('PRECIO: '+ str(float(price))+' '+str(float(usdCompra)))
-                    price = str(float(price) / float(usdCompra))
-                discount = str(item.find('div',{'class':'item-discount'}))[0:4].strip('</div>')
+                    price = float(price) / float(usdCompra)
+                    price = str(round(price, 2))
+                try:
+                    discount = str(item.find('div',{'class':'item__discount'}).text).strip('% OFF')
+                except AttributeError :
+                    discount = '0'
                 if discount == 'None' : 
-                    discount = 'N/A'
+                    discount = '0'
                 itemNumber = str(len(results))  
-                link = item.a['href']
-                results.append((itemNumber, price, name, link, discount,))
+                link = str(item.a['href'])
+                if 'JM' in link:
+                    link = link.partition('JM')[0]+'JM'
+                else :
+                    link = link.partition('?')[0]
+                results.append((itemNumber, price, name, link.strip('https://'), discount, str(datetime), mercadolibreDBPK))
                 #print("item #"+ itemNumber +": "+ name +" $"+ price + ' OFF: '+ discount )
             bWordFound = 0
             for bWord in blockedWord:
