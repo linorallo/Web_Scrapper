@@ -110,7 +110,7 @@ print('-------------RESULTS------------------')
 orderItem = 0
 for result in results :
     orderItem+=1
-    print(str(orderItem)+'- $'+ str(result[1]) + ' ' + result[2] + ' ; ' + result[3])
+    print(str(orderItem)+'- $'+ str(result[1]) +' / -'+ result[4]  +'% ' + result[2] + ' ; ' + result[3])
     if quantityShow == orderItem :
         print("***That's it***")
         break
