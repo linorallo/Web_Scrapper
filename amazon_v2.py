@@ -41,7 +41,7 @@ def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference, c
                             try:
                                 if fullPrice != price:
                                     discount = str(100 - round(float(price),2)*100/round(float(fullPrice),2)).partition('.')[0] 
-                                    print(discount)
+                                    #print(discount)
                                 else:
                                     discount = '0'  
                             except ValueError as err:
@@ -50,7 +50,8 @@ def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference, c
                             link = ('amazon.com' + item.find('a',{'class':'a-link-normal a-text-normal'})['href']).partition('ref')[0]
                             results.append((itemNumber, price, name, link, discount, str(datetime), amazonDBPK))
                         except AttributeError as err:
-                            print('Item Skipped due to: ' +str(err))
+                            pass
+                            #print('Item Skipped in Amazon due to: ' +str(err))
                     
             bWordFound = 0
             for bWord in blockedWord:
@@ -59,6 +60,7 @@ def searchInAmazon(searchString, blockedWord, searchPageDepth, sortPreference, c
             if bWordFound == 0 :
                 itemAnalysis()
         currentPage=currentPage+1
+    print('results in Amazon :' + str(len(results)))
     if sortPreference == 'Increasing' :
         return sortResults.sortIncreasing(results)
     if sortPreference == 'Decreasing' :

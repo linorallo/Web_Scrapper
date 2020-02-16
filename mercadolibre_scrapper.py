@@ -66,6 +66,7 @@ def searchInMercadoLibre(searchString, blockedWord, searchPageDepth, sortPrefere
             if bWordFound == 0 :
                 itemAnalysis()
         currentPage=currentPage+1
+        print('results in MercadoLibre :' + str(len(results)))
         if sortPreference == 'Increasing' :
             return sortResults.sortIncreasing(results)
         if sortPreference == 'Decreasing' :
