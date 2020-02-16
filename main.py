@@ -16,10 +16,8 @@ class searchAmazon(Thread):
         self.args = args
     def run(self) :
         print('Amazon thread initiated...')
-        print(self.args)
         resultQueue = self.args[0][0]
         searchParameters = self.args[0][1]
-        print(searchParameters)
         resultQueue.put(amazon_v2.searchInAmazon(searchParameters[0],searchParameters[1],searchParameters[2],searchParameters[3],searchParameters[4], ))
 
 class searchNewegg(Thread):
@@ -31,10 +29,8 @@ class searchNewegg(Thread):
         self.args = args
     def run(self) :
         print('Newegg thread initiated...')
-        print(self.args)
         resultQueue = self.args[0][0]
         searchParameters = self.args[0][1]
-        print(searchParameters)
         resultQueue.put(newegg_scrapper.searchInNewegg(searchParameters[0],searchParameters[1],searchParameters[2],searchParameters[3],searchParameters[4], ))
 class searchMercadoLibre(Thread):
     def __init__(self, threadID, name, counter, *args):
@@ -45,10 +41,8 @@ class searchMercadoLibre(Thread):
         self.args = args
     def run(self) :
         print('Mercado_libre thread initiated...')
-        print(self.args)
         resultQueue = self.args[0][0]
         searchParameters = self.args[0][1]
-        print(searchParameters)
         resultQueue.put(mercadolibre_scrapper.searchInMercadoLibre(searchParameters[0],searchParameters[1],searchParameters[2],searchParameters[3],searchParameters[4], ))
 print('------------------------------')
 searchList = []
