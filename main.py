@@ -1,10 +1,55 @@
 import threading
+from threading import *
 import amazon_v2
 import newegg_scrapper
 import mercadolibre_scrapper
 import sortResults
 import csvWriter
 import db
+import queue
+class searchAmazon(Thread):
+    def __init__(self, threadID, name, counter, *args):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
+        self.args = args
+    def run(self) :
+        print('Amazon thread initiated...')
+        print(self.args)
+        resultQueue = self.args[0][0]
+        searchParameters = self.args[0][1]
+        print(searchParameters)
+        resultQueue.put(amazon_v2.searchInAmazon(searchParameters[0],searchParameters[1],searchParameters[2],searchParameters[3],searchParameters[4], ))
+
+class searchNewegg(Thread):
+    def __init__(self, threadID, name, counter, *args):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
+        self.args = args
+    def run(self) :
+        print('Newegg thread initiated...')
+        print(self.args)
+        resultQueue = self.args[0][0]
+        searchParameters = self.args[0][1]
+        print(searchParameters)
+        resultQueue.put(newegg_scrapper.searchInNewegg(searchParameters[0],searchParameters[1],searchParameters[2],searchParameters[3],searchParameters[4], ))
+class searchMercadoLibre(Thread):
+    def __init__(self, threadID, name, counter, *args):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
+        self.args = args
+    def run(self) :
+        print('Mercado_libre thread initiated...')
+        print(self.args)
+        resultQueue = self.args[0][0]
+        searchParameters = self.args[0][1]
+        print(searchParameters)
+        resultQueue.put(mercadolibre_scrapper.searchInMercadoLibre(searchParameters[0],searchParameters[1],searchParameters[2],searchParameters[3],searchParameters[4], ))
 print('------------------------------')
 searchList = []
 blockWords = []
@@ -68,12 +113,13 @@ if searchChoice == 2 :
     choiceAmazon=choiceNewegg=choiceML=''
     print('----- New Product Search -----') 
     results = []
+    searchParameters=[searchString,blockWords,searchPageDepth, sortPreference,currency]
+    outputQ = queue.Queue()
     while True :
         choiceAmazon = input('Search in Amazon? y/n ').capitalize()
         if  choiceAmazon == 'Y' :
-            #implemnt threading
-            amazonResults = amazon_v2.searchInAmazon(searchString,blockWords,searchPageDepth, sortPreference,currency)
-            results = amazonResults
+            amazonThread = searchAmazon(1,'amazonThread',1,([outputQ,searchParameters]))
+            amazonThread.start()
             break
         elif choiceAmazon == 'N' :
             break
@@ -82,9 +128,8 @@ if searchChoice == 2 :
     while True :
         choiceNewegg = input('Search in Newegg? y/n ').capitalize()
         if  choiceNewegg == 'Y' :
-            #implemnt threading
-            neweggResults = newegg_scrapper.searchInNewegg(searchString,blockWords,searchPageDepth, sortPreference,currency)
-            results = results + neweggResults
+            neweggThread = searchNewegg(1,'neweggThread',1,([outputQ,searchParameters]))
+            neweggThread.start()
             break
         elif choiceNewegg == 'N' :
             break
@@ -93,17 +138,39 @@ if searchChoice == 2 :
     while True :
         choiceML = input('Search in Mercado Libre? y/n ').capitalize()
         if  choiceML == 'Y' :
-            #implemnt threading
-            mercadoLibreResults = mercadolibre_scrapper.searchInMercadoLibre(searchString,blockWords,searchPageDepth, sortPreference,currency)
-            results = results + mercadoLibreResults
+            mercadolibreThread = searchMercadoLibre(1,'mercadolibreThread',1,([outputQ,searchParameters]))
+            mercadolibreThread.start()
             break
         elif choiceML == 'N' :
             break
         else :
             continue
-    
     print('Search initiated... (implement animation)')
-    db.saveToDB(results)     
+    while True:
+        if amazonThread.is_alive() == False :
+            amazonThreadStatus = False
+        else:
+            amazonThreadStatus = True
+        if neweggThread.is_alive() == False :
+            neweggThreadStatus = False
+        else:
+            neweggThreadStatus =  True
+        if mercadolibreThread.is_alive() == False :
+            mercadolibreThreadStatus = False
+        else:
+            mercadolibreThreadStatus = True
+        if amazonThreadStatus == False :
+            if neweggThreadStatus == False :
+                if mercadolibreThreadStatus == False:
+                    break
+    print('All threads closed')
+    results = []
+    queue_length = outputQ.qsize()
+    for x in range(queue_length):
+        results = results + outputQ.get()
+    print('result"s lengt: ' + str(len(results)))
+    #print(outputQ.get())
+    #db.saveToDB(results)     
 quantityShow = int(input('How many items do you wish to see? '))
 
 print('-------------RESULTS------------------')
