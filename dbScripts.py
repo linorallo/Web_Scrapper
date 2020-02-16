@@ -5,7 +5,7 @@ def retrieveAll():
     return 'SELECT productLink, productPrice FROM  product'
 
 def updatePriceProduct(linkProduct, newPrice):
-    return 'UPDATE product SET priceProduct = ' + newPrice + ' WHERE linkProduct  = ' + linkProduct + ';'
+    return 'UPDATE product SET productPrice = ' + newPrice + ' WHERE productLink  = "' + linkProduct + '";'
 
 def searchProducts(searchList, blockedWords) :
     query = 'SELECT itemNumber, productPrice, productName, productLink FROM product WHERE '
