@@ -169,8 +169,8 @@ if searchChoice == 2 :
     for x in range(queue_length):
         results = results + outputQ.get()
     print('result"s lengt: ' + str(len(results)))
-    #print(outputQ.get())
-    #db.saveToDB(results)     
+    results = sortResults.sortIncreasing(results)
+    db.saveToDB(results)     
 quantityShow = int(input('How many items do you wish to see? '))
 
 print('-------------RESULTS------------------')
@@ -185,9 +185,3 @@ for result in results :
 
 
 
-
-#neweggThread = threading.Thread( newegg_scrapper.searchInNewegg, args=(searchString,blockWords,searchPageDepth, sortPreference))
-
-#amazonThread = threading.Thread( amazonResults = amazon_v2.searchInAmazon, args=(searchString,blockWords,searchPageDepth, sortPreference))
-#neweggThread.start()
-#amazonThread.start()
