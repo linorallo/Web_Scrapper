@@ -1,31 +1,26 @@
-'use strict';
 
 //dependencies
-var gulp = require('gulp');
-var sass = require('gulp-sass');
-var minifyCSS = require('gulp-clean-css');
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
-var changed = require('gulp-changed');
+const gulp = require('gulp');
+const sass = require('gulp-sass');
+const plumber = require('gulp-plumber');
+const postcss = require('gulp-postcss');
+const rename =  require('gulp-rename');
+const autoprefixer =  require('autoprefixer');
+const cssnano = require("cssnano");
+const browsersync = require('browser-sync').create();
+var SCSS_SRC = './src/Assets/scss/**/*.scss';
+var SCSS_DEST = './src/Assets/css2';
+function style(){
+    return gulp
+    .src("./Assets/scss/**/*.scss")
+    .pipe(plumber())
+    .pipe(sass({ outputStyle: "expanded" }))
+    .pipe(gulp.dest("./Assets/css/"))
+    .pipe(rename({ suffix: ".min" }))
+    .pipe(postcss([autoprefixer(), cssnano()]))
+    .pipe(gulp.dest("./Assets/css/"))
+    .pipe(browsersync.stream());
+}
+exports.style = style;
 
-var SCSS_SRC = './src/Assets/scss/**/*.scss'
-var SCSS_DEST = './src/Assets/css';
-//Compile SCSS
-gulp.task('compile_scss', function(){
-    gulp.src(SCSS_SRC)
-    .pipe(sass().on('error', sass.logError))
-    .pipe(minifyCSS())
-    .pipe(rename({suffix:'.min'}))
-    .pipe(changed(SCSS_DEST))
-    .pipe(gulp.dest(SCSS_DEST))
-});
 
-
-
-//detect anychanges in SCSS
-gulp.task('watch_scss',function(){
-    gulp.watch(SCSS_SRC, ['compile_scss']);
-});
-
-//run tasks
-gulp.task('default',['watch_scss']);
