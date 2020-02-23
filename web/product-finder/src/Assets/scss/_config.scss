@@ -1,2 +1,49 @@
 
 $white:#ffffff;
+$black: #010000;
+$lightGrey :  #e6e6e6;
+$darkrey: #333;
+$red : #ff1755;
+
+
+/*
+Mixins
+*/
+@mixin translateY($e) {
+    -webkit-transform: translateY($e);
+    -moz-transform: translateY($e);
+    transform: translateY($e);    
+}
+
+
+@mixin transition($e) {
+    -webkit-transition: $e;
+    -moz-transition: $e;
+    transition: $e;
+}
+
+
+
+body{
+    font-family : 'Open Sans', sans-serif;
+    font-size: 18px;
+    color: $black;
+    font-weight: 400;
+    font-style: normal;
+}
+
+a{
+    text-decoration: none;
+    @include transition(.4s ease-in-out);     
+    cursor: pointer;
+
+    &:hover{
+        color: grey;
+        @include transition(.4s ease-in-out);
+    }
+}
+
+.container-fluid{
+    line-height: 24px;
+}
+

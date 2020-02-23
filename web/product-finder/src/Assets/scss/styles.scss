@@ -1,0 +1,38 @@
+@import "_config.scss";
+header{
+    display: flow-root;
+    width: 100%;
+    background: black;
+    color: white;
+    height: 100px;
+    .logo{
+        position: relative;
+        top: 30%; left: 35px;
+    }
+
+    nav{
+        position: absolute;
+        top: 8%; right: 5%;
+        @include translateY(-50%);
+
+        ul li{
+            list-style-type: none;
+            display: inline-block;
+            margin-right: 10px;
+            &.last{
+                margin:0
+            }
+
+            a{
+                font-size: 19px;
+                line-height: normal;
+                color: $white;
+            }
+        }
+    }
+}
+
+body{
+    background:white;
+    color: black;
+}
