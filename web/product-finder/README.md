@@ -1,5 +1,14 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+
+# Dependencies
+-React
+-React-router-dom
+-gulp @ v4
+-gulp-rename
+
+
+
 ## Available Scripts
 
 In the project directory, you can run:
